@@ -84,6 +84,7 @@ def headers_fuzz(url, path):
                         "X-Remote-IP",
                         "X-Remote-Addr",
                         "X-Original-URL",
+                        "X-Rewrite-URL",
                         "X-Originating-IP",
                         "X-Original-Host",
                         "X-Original-IP",
@@ -124,6 +125,12 @@ def headers_fuzz(url, path):
         for value in values_payloads:
             resp = requests.get(f"{url}/{path}", headers={header : value, "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, allow_redirects=False)
             print(good_code(resp.status_code,f" {header}: {value} [code:{resp.status_code} size:{len(resp.content)}]"))
+            
+    resp = requests.get(f"{url}", headers={"X-Original-URL" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, allow_redirects=False)
+    print(good_code(resp.status_code,f" X-Original-URL: /{path} [code:{resp.status_code} size:{len(resp.content)}]"))
+    
+    resp = requests.get(f"{url}", headers={"X-Rewrite-URL" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, allow_redirects=False)
+    print(good_code(resp.status_code,f" X-Rewrite-URL: /{path} [code:{resp.status_code} size:{len(resp.content)}]"))
 
             
 def paths_fuzz(url, path):
@@ -174,10 +181,10 @@ def main():
                         arg = arg[:-1]
                     url = arg
                 elif opt in ("-p", "--path"):
-                    if arg[0] == '/':
+                    if arg[0] == '/' and len(arg) > 1:
                         arg = arg[1:]
-                    if arg[-1] == '/':
-                        arg = arg[:-1]
+                        if arg[-1] == '/':
+                            arg = arg[:-1]
                     path = arg
                 else:
                     help()
