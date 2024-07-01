@@ -161,8 +161,9 @@ def paths_fuzz(url, path):
         resp = requests.get(f"{url}{payload}{path}", headers=USER_AGENT, allow_redirects=False)        
         print(good_code(resp.status_code, f"{url}{payload}{path} [code:{resp.status_code} size:{len(resp.content)}]"))
 
-        resp = requests.get(f"{url}{payload}{path.upper()}", headers=USER_AGENT, allow_redirects=False)        
-        print(good_code(resp.status_code, f"{url}{payload}{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
+        if path:
+            resp = requests.get(f"{url}{payload}{path.upper()}", headers=USER_AGENT, allow_redirects=False)        
+            print(good_code(resp.status_code, f"{url}{payload}{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
         
         resp = requests.get(f"{url}{payload}{path}.json", headers=USER_AGENT, allow_redirects=False)        
         print(good_code(resp.status_code, f"{url}{payload}{path}.json [code:{resp.status_code} size:{len(resp.content)}]"))
@@ -180,8 +181,9 @@ def paths_fuzz(url, path):
             resp = requests.get(f"{url}{payload}{path}{payload_two}", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
 
-            resp = requests.get(f"{url}{payload}{path.upper()}{payload_two}", headers=USER_AGENT, allow_redirects=False)        
-            print(good_code(resp.status_code, f"{url}{payload}{path.upper()}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
+            if path:
+                resp = requests.get(f"{url}{payload}{path.upper()}{payload_two}", headers=USER_AGENT, allow_redirects=False)        
+                print(good_code(resp.status_code, f"{url}{payload}{path.upper()}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
             
             resp = requests.get(f"{url}{payload}{path}.json{payload_two}", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path}.json{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
