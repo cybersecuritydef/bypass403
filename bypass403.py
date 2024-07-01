@@ -4,7 +4,6 @@ import sys
 
 
 from http.client import HTTPConnection
-from urllib.parse import urlparse
 
 USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}
 
@@ -232,7 +231,7 @@ def main():
             print(f"\nURL: {url}\nPATH: {path}\n")            
             url, path = parse_slash(url, path)
             
-            """print("-------------------")
+            print("-------------------")
             print("[!] Methods fuzzing")
             print("-------------------\n")
             methods_fuzz(url, path)
@@ -250,17 +249,17 @@ def main():
             print("\n-------------------")
             print("[!] Version fuzzing")
             print("-------------------\n")
-            version_fuzz(url, path)"""
+            version_fuzz(url, path)
             
             print("\n-----------------")
             print("[!] Paths fuzzing")
             print("-----------------\n")
             paths_fuzz(url, path)
             
-            """print("\n-------------------")
+            print("\n-------------------")
             print("[!] Headers fuzzing")
             print("-------------------\n")
-            headers_fuzz(url, path)"""
+            headers_fuzz(url, path)
         else:
             help()
     except KeyboardInterrupt:
