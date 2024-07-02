@@ -192,7 +192,7 @@ def parse_url(url):
 def main():
     url = None
     path = None
-    deepth = 8
+    deepth = 5
     data = None
     try:
         try:
@@ -214,7 +214,6 @@ def main():
             sys.exit(0)
         if url is not None and path is not None:
             url = parse_url(url)
-            print(url)
             lfi_get(url, path, int(deepth))
         else:
             help()
