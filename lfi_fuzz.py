@@ -25,7 +25,7 @@ def good_code(code, text):
     return good + text
 
 
-def lfi_get(url, payload, filter, deepth=5):
+def lfi_get(url, payload, filter=None, deepth=5):
     dds = "../"
     ds = "./"
     for _ in range(deepth):
