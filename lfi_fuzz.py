@@ -221,7 +221,7 @@ def main():
             sys.exit(0)
         if url is not None and path is not None:
             url = parse_url(url)            
-            lfi(url, path, fcode, fsize, int(depth))
+            lfi(url, path, fcode=fcode, fsize=fsize, int(depth))
         else:
             help()
     except KeyboardInterrupt:
