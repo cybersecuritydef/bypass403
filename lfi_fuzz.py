@@ -193,8 +193,8 @@ def main():
     url = None
     path = None
     data = None
-    deepth = 5
     filter = None
+    deepth = 5    
     try:
         try:
             opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "deepth=", "data=", "filter="])
