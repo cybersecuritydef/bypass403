@@ -196,8 +196,8 @@ def parse_url(url):
 def main():
     url = None
     path = None
-    fcode = None
-    fsize = None
+    fcode = ()
+    fsize = ()
     depth = 5    
     try:
         try:
