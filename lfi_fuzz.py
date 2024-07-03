@@ -25,7 +25,7 @@ def good_code(code, text):
     return good + text
 
 
-def lfi_get(url, payload, deepth):
+def lfi_get(url, payload, filter, deepth=5):
     dds = "../"
     ds = "./"
     for _ in range(deepth):
@@ -192,11 +192,12 @@ def parse_url(url):
 def main():
     url = None
     path = None
-    deepth = 5
     data = None
+    deepth = 5
+    filter = None
     try:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "deepth=", "data="])
+            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "deepth=", "data=", "filter="])
             for opt, arg in opts:            
                 if opt in ("-u", "--url"):                    
                     url = arg
@@ -204,6 +205,8 @@ def main():
                     path = arg
                 elif opt in ("--deepth"):                    
                     deepth = arg
+                elif opt in ("--filter"):                    
+                    filter = tuple(map(int, arg.split(",")))
                 elif opt in ("--data"):                    
                     data = arg
                 else:
@@ -214,7 +217,7 @@ def main():
             sys.exit(0)
         if url is not None and path is not None:
             url = parse_url(url)
-            lfi_get(url, path, int(deepth))
+            lfi_get(url, path, filter, int(deepth))
         else:
             help()
     except KeyboardInterrupt:
