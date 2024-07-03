@@ -217,7 +217,10 @@ def main():
             sys.exit(0)
         if url is not None and path is not None:
             url = parse_url(url)
-            lfi_get(url, path, filter, int(deepth))
+            if data is None:
+                lfi_get(url, path, filter, int(deepth))
+            else:
+                lfi_post(url, path, filter, data, int(deepth))
         else:
             help()
     except KeyboardInterrupt:
