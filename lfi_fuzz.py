@@ -174,7 +174,11 @@ def lfi_get(url, payload, filter=None, deepth=5):
             print(good_code(resp.status_code, f"{ds}{dds}{payload}/{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             ds += ds
         dds += dds
-            
+
+
+def lfi_post(url, payload, filter=None, data=None, deepth=5):
+    pass
+
 
 def parse_url(url):
     u = ""
