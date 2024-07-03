@@ -12,8 +12,8 @@ USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/2010010
 def help():
     print("\t-u URL, --url=URL\tscan url")
     print("\t-p , --path      \tdir or file")
-    print("\t--depth      \trecursion depth")
-    print("\t--filter            \tFilter separate [,] code or size ")
+    print("\t--depth          \trecursion depth")
+    print("\t--filter         \tFilter separate [,] code or size ")
     print("EXAMPLES: ")    
     print("\tlfi_fuzz.py -u http://example.com -p test")
     print("\tlfi_fuzz.py --url=http://example.com --path=test")
