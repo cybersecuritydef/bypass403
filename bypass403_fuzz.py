@@ -3,6 +3,7 @@ import getopt
 import sys
 
 
+from urllib.parse import quote_plus
 from http.client import HTTPConnection
 
 USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}
@@ -159,42 +160,78 @@ def paths_fuzz(url, path):
     for payload in payloads_list:
         resp = requests.get(f"{url}{payload}{path}", headers=USER_AGENT, allow_redirects=False)        
         print(good_code(resp.status_code, f"{url}{payload}{path} [code:{resp.status_code} size:{len(resp.content)}]"))
+        
+        resp = requests.get(f"{url}{quote_plus(f'{payload}{path}', safe='')}", headers=USER_AGENT, allow_redirects=False)        
+        print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}', safe='')} [code:{resp.status_code} size:{len(resp.content)}]"))
 
         if path:
             resp = requests.get(f"{url}{payload}{path.upper()}", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
+
+            resp = requests.get(f"{url}{quote_plus(f'{payload}{path.upper()}', safe='')}", headers=USER_AGENT, allow_redirects=False)        
+            print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}', safe='')} [code:{resp.status_code} size:{len(resp.content)}]"))
         
         resp = requests.get(f"{url}{payload}{path}.json", headers=USER_AGENT, allow_redirects=False)        
         print(good_code(resp.status_code, f"{url}{payload}{path}.json [code:{resp.status_code} size:{len(resp.content)}]"))
         
+        resp = requests.get(f"{url}{quote_plus(f'{payload}{path}.json', safe='')}", headers=USER_AGENT, allow_redirects=False)        
+        print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}.json', safe='')} [code:{resp.status_code} size:{len(resp.content)}]"))        
+        
         resp = requests.get(f"{url}{payload}{path}%20", headers=USER_AGENT, allow_redirects=False)        
         print(good_code(resp.status_code, f"{url}{payload}{path}%20 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+        resp = requests.get(f"{url}{quote_plus(f'{payload}{path}', safe='')}%20", headers=USER_AGENT, allow_redirects=False)        
+        print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}', safe='')}%20 [code:{resp.status_code} size:{len(resp.content)}]"))
         
         resp = requests.get(f"{url}{payload}{path}%09", headers=USER_AGENT, allow_redirects=False)        
         print(good_code(resp.status_code, f"{url}{payload}{path}%09 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+        resp = requests.get(f"{url}{quote_plus(f'{payload}{path}', safe='')}%09", headers=USER_AGENT, allow_redirects=False)        
+        print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}', safe='')}%09 [code:{resp.status_code} size:{len(resp.content)}]"))
         
         resp = requests.get(f"{url}{payload}{path}%00", headers=USER_AGENT, allow_redirects=False)        
         print(good_code(resp.status_code, f"{url}{payload}{path}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+        resp = requests.get(f"{url}{quote_plus(f'{payload}{path}', safe='')}%00", headers=USER_AGENT, allow_redirects=False)        
+        print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}', safe='')}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
         
         for payload_two in payloads_list:
             resp = requests.get(f"{url}{payload}{path}{payload_two}", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
 
+            resp = requests.get(f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')}", headers=USER_AGENT, allow_redirects=False)        
+            print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')} [code:{resp.status_code} size:{len(resp.content)}]"))
+
             if path:
                 resp = requests.get(f"{url}{payload}{path.upper()}{payload_two}", headers=USER_AGENT, allow_redirects=False)        
                 print(good_code(resp.status_code, f"{url}{payload}{path.upper()}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
+
+                resp = requests.get(f"{url}{quote_plus(f'{payload}{path.upper()}{payload_two}', safe='')}", headers=USER_AGENT, allow_redirects=False)        
+                print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path.upper()}{payload_two}', safe='')} [code:{resp.status_code} size:{len(resp.content)}]"))
             
             resp = requests.get(f"{url}{payload}{path}.json{payload_two}", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path}.json{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
+
+            resp = requests.get(f"{url}{quote_plus(f'{payload}{path}.json{payload_two}', safe='')}", headers=USER_AGENT, allow_redirects=False)        
+            print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}.json{payload_two}', safe='')} [code:{resp.status_code} size:{len(resp.content)}]"))
             
             resp = requests.get(f"{url}{payload}{path}{payload_two}%20", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path}{payload_two}%20 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+            resp = requests.get(f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')}%20", headers=USER_AGENT, allow_redirects=False)        
+            print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')}%20 [code:{resp.status_code} size:{len(resp.content)}]"))
             
             resp = requests.get(f"{url}{payload}{path}{payload_two}%09", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path}{payload_two}%09 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+            resp = requests.get(f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')}%09", headers=USER_AGENT, allow_redirects=False)        
+            print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')}%09 [code:{resp.status_code} size:{len(resp.content)}]"))
             
             resp = requests.get(f"{url}{payload}{path}{payload_two}%00", headers=USER_AGENT, allow_redirects=False)        
             print(good_code(resp.status_code, f"{url}{payload}{path}{payload_two}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+            resp = requests.get(f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')}%00", headers=USER_AGENT, allow_redirects=False)        
+            print(good_code(resp.status_code, f"{url}{quote_plus(f'{payload}{path}{payload_two}', safe='')}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
 
 
 def parse_slash(url, path):
