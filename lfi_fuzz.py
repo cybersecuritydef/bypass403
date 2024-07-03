@@ -220,7 +220,7 @@ def main():
             if data is None:
                 lfi_get(url, path, filter, int(deepth))
             else:
-                lfi_post(url, path, filter, data, int(deepth))
+                #lfi_post(url, path, filter, data, int(deepth))
         else:
             help()
     except KeyboardInterrupt:
