@@ -13,12 +13,13 @@ def help():
     print("\t-u URL, --url=URL\tscan url")
     print("\t-p , --path=      \tdir or file")
     print("\t--depth=          \trecursion depth")
-    print("\t--filter=         \tFilter separate [,] code or size ")
+    print("\t--fcode=         \tFilter code separate [,]")
+    print("\t--fsize=         \tFilter length content separate [,]")
     print("EXAMPLES: ")    
     print("\tlfi_fuzz.py -u http://example.com -p test")
     print("\tlfi_fuzz.py --url=http://example.com --path=test")
-    print("\tlfi_fuzz.py --url=http://example.com --path=test --filter=404,502")
-    print("\tlfi_fuzz.py --url=http://example.com --path=test --filter=612")
+    print("\tlfi_fuzz.py --url=http://example.com --path=test --fcode=404,502")
+    print("\tlfi_fuzz.py --url=http://example.com --path=test --fsize=612")
 
 
 def good_code(code, text):
@@ -28,7 +29,7 @@ def good_code(code, text):
     return good + text
 
 
-def lfi(url, payload, filter=None, depth=5):
+def lfi(url, payload, fcode=(), fsize=(), depth=5):
     dds = "../"
     ds = "./"
     for _ in range(depth):
@@ -195,11 +196,12 @@ def parse_url(url):
 def main():
     url = None
     path = None
-    filter = None
+    fcode = None
+    fsize = None
     depth = 5    
     try:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "depth=", "filter="])
+            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "depth=", "fcode=", "fsize="])
             for opt, arg in opts:            
                 if opt in ("-u", "--url"):                    
                     url = arg
@@ -207,8 +209,10 @@ def main():
                     path = arg
                 elif opt in ("--depth"):                    
                     deepth = arg
-                elif opt in ("--filter"):                    
-                    filter = tuple(map(int, arg.split(",")))
+                elif opt in ("--fcode"):                    
+                    fcode = tuple(map(int, arg.split(",")))
+                elif opt in ("--fsize"):                    
+                    fsize = tuple(map(int, arg.split(",")))
                 else:
                     help()
                     sys.exit(0)
@@ -217,7 +221,7 @@ def main():
             sys.exit(0)
         if url is not None and path is not None:
             url = parse_url(url)            
-            lfi(url, path, filter, int(depth))
+            lfi(url, path, fcode, fsize, int(depth))
         else:
             help()
     except KeyboardInterrupt:
