@@ -157,9 +157,6 @@ def lfi(url, payload, hcode=(), hsize=(), depth=5):
                 	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             ds += DS
         dds += DDS
-            
-    
-            
 
 
 def parse_url(url):
