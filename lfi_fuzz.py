@@ -224,7 +224,8 @@ def parse_url(url):
             u = f"{d.scheme}://{d.netloc}{d.path}?{d.query}"
     return u
 
-def set_cookie(data):
+
+def parse_cookie(data):
     cookie = {}
     try:
         if data:
@@ -258,7 +259,7 @@ def main():
                 elif opt in ("--hsize"):                    
                     hsize = tuple(map(int, arg.split(",")))
                 elif opt in ("-c", "--cookie"):                    
-                    cookie = set_cookie(arg)
+                    cookie = parse_cookie(arg)
                 else:
                     help()
                     sys.exit(0)
