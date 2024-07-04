@@ -271,7 +271,6 @@ def main():
             print("[!] LFI fuzzing")
             print("----------------\n")
             url = parse_url(url)
-            print(url, path, cookie)
             lfi(url, path, hcode=hcode, hsize=hsize, cookie=cookie, depth=depth)
         else:
             help()
