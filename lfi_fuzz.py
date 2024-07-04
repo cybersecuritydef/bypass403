@@ -37,6 +37,7 @@ def good_code(code, text):
 def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
     dds = DDS
     ds = DS
+    print("Step 1")
     for _ in range(depth):
         payloads = [f"{dds}{payload}",
                     f"{payload}{dds}",
@@ -84,6 +85,7 @@ def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
         dds += DDS
         ds += DS
 
+    print("Step 2")
     ds = DS
     for _ in range(depth):
         dds = DDS
@@ -126,6 +128,7 @@ def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
             dds += DDS
         ds += DS
 
+    print("Step 3")
     dds = DDS
     for _ in range(depth):
         ds = DS
