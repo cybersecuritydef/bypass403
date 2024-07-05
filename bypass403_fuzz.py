@@ -265,22 +265,21 @@ def main():
     path = None
     cookie = None
     try:
-        try:
-            opts, args = getopt.getopt(sys.argv[1:], "u:p:c:", ["url=", "path=", "cookie="])
-            for opt, arg in opts:            
-                if opt in ("-u", "--url"):                    
-                    url = arg
-                elif opt in ("-p", "--path"):                    
-                    path = arg
-                elif opt in ("-c", "--cookie"):                    
-                    cookie = parse_cookie(arg)
-                else:
-                    help()
-                    sys.exit(0)
-        except getopt.GetoptError as err:
-            help()
-            sys.exit(0)
-            
+        opts, args = getopt.getopt(sys.argv[1:], "u:p:c:", ["url=", "path=", "cookie="])
+        for opt, arg in opts:            
+            if opt in ("-u", "--url"):                    
+                url = arg
+            elif opt in ("-p", "--path"):                    
+                path = arg
+            elif opt in ("-c", "--cookie"):                    
+                cookie = parse_cookie(arg)
+            else:
+                help()
+                sys.exit(0)
+    except getopt.GetoptError as err:
+        help()
+        sys.exit(0)
+    try:  
         if url is not None and path is not None:            
             print(f"\nURL: {url}\nPATH: {path}\n")            
             url, path = parse_slash(url, path)
