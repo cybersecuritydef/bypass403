@@ -37,7 +37,6 @@ def good_code(code, text):
 def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
     dds = DDS
     ds = DS
-    print("Step 1")
     for _ in range(depth):
         payloads = [f"{dds}{payload}",
                     f"{payload}{dds}",
@@ -85,7 +84,6 @@ def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
         dds += DDS
         ds += DS
 
-    print("Step 2")
     ds = DS
     for _ in range(depth):
         dds = DDS
@@ -128,7 +126,6 @@ def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
             dds += DDS
         ds += DS
 
-    print("Step 3")
     dds = DDS
     for _ in range(depth):
         ds = DS
@@ -238,13 +235,13 @@ def main():
     except KeyboardInterrupt:
         sys.exit(0)
     except requests.ConnectionError as e:
-        print(e)
+        print("TEST", e)
         sys.exit(0)
     except requests.Timeout as e:
-        print(e)
+        print("Time", e)
         sys.exit(0)
     except requests.RequestException as e:
-        print(e)
+        print("GO", e)
         sys.exit(0)
     
 
