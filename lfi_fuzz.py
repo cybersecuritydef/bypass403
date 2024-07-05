@@ -201,29 +201,29 @@ def main():
     cookie = None
     hcode = ()
     hsize = ()
-    depth = 5    
+    depth = 5
     try:
-        try:
-            opts, args = getopt.getopt(sys.argv[1:], "u:p:d:c:", ["url=", "path=", "depth=", "hcode=", "hsize=", "cookie="])
-            for opt, arg in opts:            
-                if opt in ("-u", "--url"):                    
-                    url = arg
-                elif opt in ("-p", "--path"):                    
-                    path = arg
-                elif opt in ("--depth"):                    
-                    depth = int(arg)
-                elif opt in ("--hcode"):                    
-                    hcode = tuple(map(int, arg.split(",")))
-                elif opt in ("--hsize"):                    
-                    hsize = tuple(map(int, arg.split(",")))
-                elif opt in ("-c", "--cookie"):                    
-                    cookie = parse_cookie(arg)
-                else:
-                    help()
-                    sys.exit(0)
-        except getopt.GetoptError as err:
-            help()
-            sys.exit(0)
+        opts, args = getopt.getopt(sys.argv[1:], "u:p:d:c:", ["url=", "path=", "depth=", "hcode=", "hsize=", "cookie="])
+        for opt, arg in opts:            
+            if opt in ("-u", "--url"):                    
+                url = arg
+            elif opt in ("-p", "--path"):                    
+                path = arg
+            elif opt in ("--depth"):                    
+                depth = int(arg)
+            elif opt in ("--hcode"):                    
+                hcode = tuple(map(int, arg.split(",")))
+            elif opt in ("--hsize"):                    
+                hsize = tuple(map(int, arg.split(",")))
+            elif opt in ("-c", "--cookie"):                    
+                cookie = parse_cookie(arg)
+            else:
+                help()
+                sys.exit(0)
+    except getopt.GetoptError as err:
+        help()
+        sys.exit(0)
+    try:
         if url is not None and path is not None:
             print("\n----------------")
             print("[!] LFI fuzzing")
@@ -235,13 +235,13 @@ def main():
     except KeyboardInterrupt:
         sys.exit(0)
     except requests.ConnectionError as e:
-        print("TEST", e)
+        print(e)
         sys.exit(0)
     except requests.Timeout as e:
-        print("Time", e)
+        print(e)
         sys.exit(0)
     except requests.RequestException as e:
-        print("GO", e)
+        print(e)
         sys.exit(0)
     
 
