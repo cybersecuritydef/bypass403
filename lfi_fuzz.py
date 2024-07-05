@@ -185,14 +185,11 @@ def parse_url(url):
 
 def parse_cookie(data):
     cookie = {}
-    try:
-        if data:
-            for pair in data.split(","):
-                key, value = pair.split("=")
-                cookie[key] = value
-        return cookie
-    except ValueError as e:
-        print(e)
+    if data:
+        for pair in data.split(","):
+            key, value = pair.split("=")
+            cookie[key] = value
+    return cookie
 
 
 def main():
@@ -223,6 +220,8 @@ def main():
     except getopt.GetoptError as err:
         help()
         sys.exit(0)
+    except ValueError as e:
+        print(e)
     try:
         if url is not None and path is not None:
             print("\n----------------")
