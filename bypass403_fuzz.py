@@ -22,7 +22,7 @@ def version_fuzz(url, path, cookie=None, redirect=False):
     version_payloads = ["HTTP/0.9",
                         "HTTP/1.0",
                         "HTTP/1.1",
-                        "HTTP/2"]
+                        "HTTP/2.0"]
     for version in version_payloads:
         HTTPConnection._http_vsn_str = version
         resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
