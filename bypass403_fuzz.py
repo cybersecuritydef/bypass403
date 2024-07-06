@@ -136,6 +136,10 @@ def paths_fuzz(url, path, cookie=None, redirect=False):
         print(common.good_code(resp.status_code, f"{url}/{payload_one}{path} [code:{resp.status_code} size:{len(resp.content)}]"))
         resp = requests.get(f"{url}/{payload_one}{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
         print(common.good_code(resp.status_code, f"{url}/{payload_one}{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}/{path}{payload_one}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        print(common.good_code(resp.status_code, f"{url}/{path}{payload_one} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}/{payload_one}{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        print(common.good_code(resp.status_code, f"{url}/{path.upper()}{payload_one} [code:{resp.status_code} size:{len(resp.content)}]"))
         for payload_two in payloads:           
             resp = requests.get(f"{url}/{payload_one}{path}{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
             print(common.good_code(resp.status_code, f"{url}/{payload_one}{path}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
