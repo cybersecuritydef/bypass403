@@ -144,7 +144,7 @@ def paths_fuzz(url, path, cookie=None, redirect=False):
                       f"{url}//;//{path.upper()}",
                       f"{url}/../{path.upper()}"]
 
-    payloads = ["/", "/.", "/./", "/../", "/;/", ".;/", "/.;/", "./", "../", "/;/", "//;//", "..;/", "/..;/", "#", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
+    payloads = ["/", "/.", "/./", "/../", "/;/", ".;/", "/.;/", "./", "../", "/;/", "//;//", "..;/", "/..;/", "/*", "*", "#", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
         
     for path_payload in paths_payloads:
         resp = requests.get(f"{path_payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)        
