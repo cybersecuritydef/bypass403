@@ -1,5 +1,5 @@
-
 from urllib.parse import urlparse
+from urllib.parse import quote_plus
 
 
 USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}
@@ -55,4 +55,31 @@ def parse_cookie(data):
             key, value = pair.split("=")
             cookie[key] = value
     return cookie
+
+
+def urlencode(text=None):
+    enc = None
+    if text is not None:
+        enc = quote_plus(text, safe="")
+    return enc
+
+
+def double_urlencode(text=None):
+    enc = None
+    if text is not None:
+        enc = urlencode(urlencode(text))
+    return enc
+
+
+
+
+
+
+
+
+
+
+
+
+
 

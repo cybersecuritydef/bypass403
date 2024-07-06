@@ -22,7 +22,7 @@ def version_fuzz(url, path, cookie=None, redirect=False):
     version_payloads = ["HTTP/0.9",
                         "HTTP/1.0",
                         "HTTP/1.1",
-                        "HTTP/2.0"]
+                        "HTTP/2"]
     for version in version_payloads:
         HTTPConnection._http_vsn_str = version
         resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
@@ -122,10 +122,12 @@ def headers_fuzz(url, path, cookie=None, redirect=False):
 
     resp = requests.get(f"{url}", headers={"Referer" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
     print(common.good_code(resp.status_code,f" Referer: /{path} [code:{resp.status_code} size:{len(resp.content)}]"))
+    resp = requests.get(f"{url}", headers={"Referer" : f"{url}/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+    print(common.good_code(resp.status_code,f" Referer: {url}/{path} [code:{resp.status_code} size:{len(resp.content)}]"))
 
             
 def paths_fuzz(url, path, cookie=None, redirect=False):  
-    payloads = [ ".", "./", "../", ";/", ".;/", "..;/", "/;//", "*", "#", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
+    payloads = [ ".", "./", "../", ";/", ".;/", "..;/", "/;//", "*", "#", "~", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
     
     resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
     print(common.good_code(resp.status_code, f"{url}/{path} [code:{resp.status_code} size:{len(resp.content)}]"))
