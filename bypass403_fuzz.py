@@ -2,10 +2,11 @@ import requests
 import getopt
 import sys
 import common
+import urllib3
 
-from urllib.parse import quote_plus
 from http.client import HTTPConnection
 
+urllib3.disable_warnings()
 
 def help():
     print("\t-u URL, --url=URL\tscan url")
@@ -25,7 +26,7 @@ def version_fuzz(url, path, cookie=None, redirect=False):
                         "HTTP/2"]
     for version in version_payloads:
         HTTPConnection._http_vsn_str = version
-        resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         print(common.good_code(resp.status_code,f" {version} [code:{resp.status_code} size:{len(resp.content)}]"))
     HTTPConnection._http_vsn_str = "HTTP/1.1"
 
@@ -48,7 +49,7 @@ def methods_fuzz(url, path, cookie=None, redirect=False):
                        "CONNECT"]
     
     for method in method_payloads:
-        resp = requests.request(method, f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        resp = requests.request(method, f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         print(common.good_code(resp.status_code, f" {method} {url}/{path} [code:{resp.status_code} size:{len(resp.content)}]"))
 
 
@@ -64,18 +65,18 @@ def scheme_fuzz(url, path, cookie=None, redirect=False):
     
     for scheme in scheme_payloads:
         for proto in protocol_payloads:
-            resp = requests.get(f"{url}/{path}", headers={proto : scheme, "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+            resp = requests.get(f"{url}/{path}", headers={proto : scheme, "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect, verify=False)
             print(common.good_code(resp.status_code,f" {proto}: {scheme} [code:{resp.status_code} size:{len(resp.content)}]"))
 
 
 def port_fuzz(url, path, cookie=None, redirect=False):
     ports_payloads = [80, 8080, 8000, 443, 4443]
     for port in ports_payloads:
-        resp = requests.get(f"{url}/{path}", headers={"X-Forwarded-Port" : f"{port}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+        resp = requests.get(f"{url}/{path}", headers={"X-Forwarded-Port" : f"{port}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect, verify=False)
         print(common.good_code(resp.status_code,f" X-Forwarded-Port: {port} [code:{resp.status_code} size:{len(resp.content)}]"))
 
     
-def headers_fuzz(url, path, cookie=None, redirect=False):
+def headers_proxy_fuzz(url, path, cookie=None, redirect=False):
     headers_payloads = ["Client-IP",
                         "True-Client-IP",
                         "Cluster-Client-IP",
@@ -111,45 +112,45 @@ def headers_fuzz(url, path, cookie=None, redirect=False):
     
     for header in headers_payloads:
         for addr in common.ADDR_LOCALHOST:
-            resp = requests.get(f"{url}/{path}", headers={header : addr, "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+            resp = requests.get(f"{url}/{path}", headers={header : addr, "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect, verify=False)
             print(common.good_code(resp.status_code,f" {header}: {addr} [code:{resp.status_code} size:{len(resp.content)}]"))
             
-    resp = requests.get(f"{url}", headers={"X-Original-URL" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+    resp = requests.get(f"{url}", headers={"X-Original-URL" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect, verify=False)
     print(common.good_code(resp.status_code,f" X-Original-URL: /{path} [code:{resp.status_code} size:{len(resp.content)}]"))
     
-    resp = requests.get(f"{url}", headers={"X-Rewrite-URL" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+    resp = requests.get(f"{url}", headers={"X-Rewrite-URL" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect, verify=False)
     print(common.good_code(resp.status_code,f" X-Rewrite-URL: /{path} [code:{resp.status_code} size:{len(resp.content)}]"))
 
-    resp = requests.get(f"{url}", headers={"Referer" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+    resp = requests.get(f"{url}", headers={"Referer" : f"/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect, verify=False)
     print(common.good_code(resp.status_code,f" Referer: /{path} [code:{resp.status_code} size:{len(resp.content)}]"))
-    resp = requests.get(f"{url}", headers={"Referer" : f"{url}/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect)
+    resp = requests.get(f"{url}", headers={"Referer" : f"{url}/{path}", "User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}, cookies=cookie, allow_redirects=redirect, verify=False)
     print(common.good_code(resp.status_code,f" Referer: {url}/{path} [code:{resp.status_code} size:{len(resp.content)}]"))
 
             
 def paths_fuzz(url, path, cookie=None, redirect=False):  
     payloads = [ ".", "./", "../", ";/", ".;/", "..;/", "/;//", "*", "#", "~", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
     
-    resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+    resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
     print(common.good_code(resp.status_code, f"{url}/{path} [code:{resp.status_code} size:{len(resp.content)}]"))
-    resp = requests.get(f"{url}/{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+    resp = requests.get(f"{url}/{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
     print(common.good_code(resp.status_code, f"{url}/{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
     for payload_one in payloads:
-        resp = requests.get(f"{url}/{payload_one}{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        resp = requests.get(f"{url}/{payload_one}{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         print(common.good_code(resp.status_code, f"{url}/{payload_one}{path} [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}/{payload_one}{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        resp = requests.get(f"{url}/{payload_one}{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         print(common.good_code(resp.status_code, f"{url}/{payload_one}{path.upper()} [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}/{path}{payload_one}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        resp = requests.get(f"{url}/{path}{payload_one}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         print(common.good_code(resp.status_code, f"{url}/{path}{payload_one} [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}/{payload_one}{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+        resp = requests.get(f"{url}/{payload_one}{path.upper()}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         print(common.good_code(resp.status_code, f"{url}/{path.upper()}{payload_one} [code:{resp.status_code} size:{len(resp.content)}]"))
         for payload_two in payloads:           
-            resp = requests.get(f"{url}/{payload_one}{path}{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            resp = requests.get(f"{url}/{payload_one}{path}{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
             print(common.good_code(resp.status_code, f"{url}/{payload_one}{path}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}/{payload_one}{path.upper()}{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            resp = requests.get(f"{url}/{payload_one}{path.upper()}{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
             print(common.good_code(resp.status_code, f"{url}/{payload_one}{path.upper()}{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))            
-            resp = requests.get(f"{url}/{payload_one}{path}/{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            resp = requests.get(f"{url}/{payload_one}{path}/{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
             print(common.good_code(resp.status_code, f"{url}/{payload_one}{path}/{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}/{payload_one}{path.upper()}/{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
+            resp = requests.get(f"{url}/{payload_one}{path.upper()}/{payload_two}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
             print(common.good_code(resp.status_code, f"{url}/{payload_one}{path.upper()}/{payload_two} [code:{resp.status_code} size:{len(resp.content)}]"))
 
 
@@ -221,7 +222,7 @@ def main():
             print("\n-------------------")
             print("[!] Headers fuzzing")
             print("-------------------\n")
-            headers_fuzz(url, path, cookie=cookie, redirect=redirect)
+            headers_proxy_fuzz(url, path, cookie=cookie, redirect=redirect)
         else:
             help()
     except KeyboardInterrupt:

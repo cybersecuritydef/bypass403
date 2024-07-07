@@ -1,5 +1,4 @@
 from urllib.parse import urlparse
-from urllib.parse import quote_plus
 
 
 USER_AGENT = {"User-Agent" : "Mozilla/5.0 (Windows NT 5.1; rv:8.0) Gecko/20100101 Firefox/8.0"}
@@ -58,9 +57,12 @@ def parse_cookie(data):
 
 
 def urlencode(text=None):
-    enc = None
-    if text is not None:
-        enc = quote_plus(text, safe="")
+    TABLE = "0123456789abcdef"
+    enc = ""
+    for c in text:
+        enc += '%'
+        enc += TABLE[ord(c) >> 4]
+        enc += TABLE[ord(c) & 15]
     return enc
 
 
@@ -71,7 +73,11 @@ def double_urlencode(text=None):
     return enc
 
 
-
+def find_content(content, matches=()):
+    for match in matches:        
+        if content.find(match):            
+            return True
+    return False
 
 
 
