@@ -75,7 +75,7 @@ def double_urlencode(text=None):
 
 def find_content(content, matches=()):
     for match in matches:        
-        if content.find(match):            
+        if content.find(match) != -1:            
             return True
     return False
 

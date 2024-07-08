@@ -238,7 +238,7 @@ def wrapper_php_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, re
                 print(common.good_code(resp.status_code, f"{common.double_urlencode(fd_p)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))
 
     for p in php_payloads:
-        resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
+        resp = requests.get(f"{url}{p}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
         if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
             print(common.good_code(resp.status_code, f"{p} [code:{resp.status_code} size:{len(resp.content)}]"))
         # urlencode
@@ -292,6 +292,26 @@ def main():
     try:  
         if url is not None and path is not None:           
             url = common.parse_url(url)
+
+            print("\n------------------------")
+            print("[!] Wrapper php fuzzing")
+            print("------------------------\n")
+            wrapper_php_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+
+            print("\n------------------------")
+            print("[!] Wrapper compress fuzzing")
+            print("------------------------\n")
+            wrapper_compress_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+
+            print("\n------------------------")
+            print("[!] Wrapper data fuzzing")
+            print("------------------------\n")
+            wrapper_data_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
+
+            print("\n------------------------")
+            print("[!] Wrapper file fuzzing")
+            print("------------------------\n")
+            wrapper_file_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
             
             print("\n--------------------------")
             print("[!] Wrapper expect fuzzing")
@@ -312,26 +332,6 @@ def main():
             print("[!] Wrapper ftp fuzzing")
             print("------------------------\n")
             wrapper_ftp_fuzz(url, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
-
-            print("\n------------------------")
-            print("[!] Wrapper file fuzzing")
-            print("------------------------\n")
-            wrapper_file_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
-
-            print("\n------------------------")
-            print("[!] Wrapper data fuzzing")
-            print("------------------------\n")
-            wrapper_data_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
-
-            print("\n------------------------")
-            print("[!] Wrapper compress fuzzing")
-            print("------------------------\n")
-            wrapper_compress_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
-
-            print("\n------------------------")
-            print("[!] Wrapper php fuzzing")
-            print("------------------------\n")
-            wrapper_php_fuzz(url, path, hcode=hcode, hsize=hsize, htext=htext, cookie=cookie, redirect=redirect)
         else:
             help()
     except KeyboardInterrupt:
