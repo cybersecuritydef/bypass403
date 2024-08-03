@@ -128,7 +128,7 @@ def headers_proxy_fuzz(url, path, cookie=None, redirect=False):
 
             
 def paths_fuzz(url, path, cookie=None, redirect=False):  
-    payloads = [ ".", "./", "../", ";/", ".;/", "..;/", "/;//", "*", "#", "~", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", ".", "%00", "%20", "%09"]
+    payloads = [ ".", "./", "../", ";/", ".;/", "..;/", "/;//", "*", "#", "~", "?", "?id=1", "??", "??id=1", "???", "???id=1", ".json", "%00", "%20", "%09"]
     
     resp = requests.get(f"{url}/{path}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
     print(common.good_code(resp.status_code, f"{url}/{path} [code:{resp.status_code} size:{len(resp.content)}]"))

